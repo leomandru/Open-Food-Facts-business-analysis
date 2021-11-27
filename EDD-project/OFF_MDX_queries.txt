@@ -1,0 +1,73 @@
+ITEMS CUBE
+
+1)
+
+SELECT
+	{[Measures].[NProducts] * [Contributors].[Contributor].Members} ON COLUMNS,
+	[CreationDate].[Year].Members ON ROWS
+FROM
+	[Items]
+
+2)
+
+SELECT
+	[Measures].[NProducts] ON COLUMNS,
+	filter([Category].[Product].Members, [Measures].[NProducts]>1) ON ROWS
+FROM
+	[Items]
+
+3)
+
+SELECT
+	[Measures].[AvgScore] ON COLUMNS,
+	[Category].[PNNS2].Members ON ROWS
+FROM
+	[Items]
+
+4)
+
+SELECT
+	{[Measures].[NProducts] * [Category].[PNNS2].Members} ON COLUMNS,
+	[NutritionalInfo].[Presence].Members ON ROWS
+FROM
+	[Items]
+
+5)
+
+SELECT
+	NON EMPTY {[Measures].[NProducts] * [Category].[PNNS1].Members} ON COLUMNS,
+	NON EMPTY [Contributors].[Type].Members ON ROWS
+FROM
+	[Items]
+
+6)
+
+SELECT
+	{[Measures].[NProducts] * [Category].[PNNS2].Members} ON COLUMNS,
+	[CreationDate].[Year].Members ON ROWS
+FROM
+	[Items]
+
+-------------------------------------------------------------------------------
+
+VERSIONS CUBE
+
+1)
+
+SELECT
+	NON EMPTY {[Measures].[NVersions] * [Category].[PNNS1].Members} ON COLUMNS,
+	NON EMPTY [ModificationDate].[Month].Members ON ROWS
+FROM
+	[Versions]
+WHERE
+	([CreationDate].[2017])
+
+2)
+
+WITH member [Measures].[RateOfUpdates]
+	as '([Measures].[NUpdates]/[Measures].[NCreations])'
+SELECT
+	[Measures].[RateOfUpdates] ON COLUMNS,
+	[Category].[PNNS1].Members ON ROWS
+FROM
+	[Versions]

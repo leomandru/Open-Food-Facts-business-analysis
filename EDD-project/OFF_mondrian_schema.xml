@@ -1,0 +1,137 @@
+<Schema name="OFF" description="EDD project">
+	<Dimension type="StandardDimension" visible="true" highCardinality="false" name="Date">
+		<Hierarchy visible="true" hasAll="true" allMemberName="All Years" primaryKey="TECH_KEY_DATE">
+			<Table name="OFF_dim_date">
+			</Table>
+			<Level name="Year" visible="true" column="year" type="Integer" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+			</Level>
+			<Level name="Month" visible="true" column="month" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+			</Level>
+			<Level name="Day" visible="true" column="day" type="String" uniqueMembers="false" levelType="Regular" hideMemberIf="Never">
+			</Level>
+		</Hierarchy>
+	</Dimension>
+	<Dimension type="StandardDimension" visible="true" highCardinality="false" name="Category">
+		<Hierarchy visible="true" hasAll="true" allMemberName="All Categories" primaryKey="TECH_KEY_CAT">
+			<Table name="OFF_dim_category">
+			</Table>
+			<Level name="PNNS1" visible="true" column="pnns_1" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+			</Level>
+			<Level name="PNNS2" visible="true" column="pnns_2" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+			</Level>
+			<Level name="Product" visible="true" column="barcode" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+			</Level>
+			<Level name="Version" visible="true" column="version" type="String" uniqueMembers="true" levelType="Regular" hideMemberIf="Never">
+			</Level>
+		</Hierarchy>
+	</Dimension>
+	<Cube name="Items" visible="true" cache="true" enabled="true">
+		<Table name="OFF_items_facts">
+		</Table>
+		<DimensionUsage source="Date" name="CreationDate" visible="true" foreignKey="SEQ_KEY_CDATE" highCardinality="false">
+		</DimensionUsage>
+		<DimensionUsage source="Category" name="Category" visible="true" foreignKey="SEQ_KEY_CAT" highCardinality="false">
+		</DimensionUsage>
+		<Dimension visible="true" name="NutritionalInfo">
+			<Hierarchy visible="true" hasAll="true" allMemberName="All Nutritional Info">
+				<Level name="Presence" visible="true" type="Boolean" uniqueMembers="true" hideMemberIf="Never">
+					<KeyExpression>
+						<SQL dialect="generic">
+							<![CDATA[CASE 
+								WHEN nutr_score IS NULL THEN FALSE
+								ELSE TRUE
+							END]]>
+						</SQL>
+					</KeyExpression>
+				</Level>
+				<Level name="Class" visible="true" type="String" uniqueMembers="true" hideMemberIf="Never">
+					<KeyExpression>
+						<SQL dialect="generic">
+							<![CDATA[CASE
+								WHEN nutr_score IS NULL THEN NULL
+								WHEN nutr_score BETWEEN -100 AND -1 THEN 'A'
+								WHEN nutr_score BETWEEN 0 AND 2 THEN 'B'
+								WHEN nutr_score BETWEEN 3 AND 10 THEN 'C'
+								WHEN nutr_score BETWEEN 11 AND 18 THEN 'D'
+								ELSE 'E'
+							END]]>
+						</SQL>
+					</KeyExpression>
+				</Level>
+				<Level name="Score" visible="true" column="nutr_score" type="String" uniqueMembers="true" hideMemberIf="Never">
+				</Level>
+			</Hierarchy>
+		</Dimension>
+		<Dimension visible="true" name="Contributors">
+			<Hierarchy visible="true" hasAll="true" allMemberName="All Contributors">
+				<Level name="Type" visible="true" type="String" uniqueMembers="true">
+					<KeyExpression>
+						<SQL dialect="generic">
+							<![CDATA[CASE 
+								WHEN pseudo = 'openfoodfacts-contributors' THEN 'Corporate' 
+								ELSE 'Individual' 
+							END]]>
+						</SQL>
+					</KeyExpression>
+				</Level>
+				<Level name="Contributor" visible="true" column="pseudo" type="String" uniqueMembers="true">
+				</Level>
+			</Hierarchy>
+		</Dimension>
+		<Measure name="NProducts" column="SEQ_KEY_CAT" aggregator="count" visible="true">
+		</Measure>
+		<Measure name="AvgScore" column="nutr_score" datatype="Integer" aggregator="avg" visible="true">
+		</Measure>
+	</Cube>
+	<Cube name="Versions" visible="true" cache="true" enabled="true">
+		<Table name="OFF_versions_facts">
+		</Table>
+		<DimensionUsage source="Date" name="CreationDate" visible="true" foreignKey="SEQ_KEY_CDATE" highCardinality="false">
+		</DimensionUsage>
+		<DimensionUsage source="Date" name="ModificationDate" visible="true" foreignKey="SEQ_KEY_MDATE" highCardinality="false">
+		</DimensionUsage>
+		<DimensionUsage source="Category" name="Category" visible="true" foreignKey="SEQ_KEY_CAT" highCardinality="false">
+		</DimensionUsage>
+		<Dimension visible="true" name="NutritionalInfo">
+			<Hierarchy visible="true" hasAll="true" allMemberName="All Nutritional Values">
+				<Level name="Presence" visible="true" type="Boolean" uniqueMembers="true" hideMemberIf="Never">
+					<KeyExpression>
+						<SQL dialect="generic">
+							<![CDATA[CASE 
+								WHEN nutr_score IS NULL THEN FALSE
+								ELSE TRUE
+							END]]>
+						</SQL>
+					</KeyExpression>
+				</Level>
+				<Level name="Class" visible="true" type="String" uniqueMembers="true" hideMemberIf="Never">
+					<KeyExpression>
+						<SQL dialect="generic">
+							<![CDATA[CASE
+								WHEN nutr_score IS NULL THEN NULL
+								WHEN nutr_score BETWEEN -100 AND -1 THEN 'A'
+								WHEN nutr_score BETWEEN 0 AND 2 THEN 'B'
+								WHEN nutr_score BETWEEN 3 AND 10 THEN 'C'
+								WHEN nutr_score BETWEEN 11 AND 18 THEN 'D'
+								ELSE 'E'
+							END]]>
+						</SQL>
+					</KeyExpression>
+				</Level>
+				<Level name="Score" visible="true" column="nutr_score" type="String" uniqueMembers="true" hideMemberIf="Never">
+				</Level>
+			</Hierarchy>
+		</Dimension>
+		<Measure name="NVersions" column="SEQ_KEY_CAT" aggregator="count" visible="true">
+		</Measure>
+		<Measure name="NCreations" column="is_create" aggregator="sum" visible="true">
+		</Measure>
+		<CalculatedMember name="NUpdates" dimension="Measures">
+			<Formula>
+				[Measures].[NVersions] - [Measures].[NCreations]
+			</Formula>
+		</CalculatedMember>
+		<Measure name="NUpdates" column="is_update" aggregator="sum" visible="true">
+		</Measure>
+	</Cube>
+</Schema>
